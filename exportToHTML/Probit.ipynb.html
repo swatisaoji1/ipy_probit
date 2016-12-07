@@ -1,0 +1,332 @@
+<html>
+<head>
+<title>Probit.ipynb</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #999999; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,0,0); }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+Probit.ipynb</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">{ 
+ &quot;cells&quot;: [ 
+  { 
+   &quot;cell_type&quot;: &quot;code&quot;, 
+   &quot;execution_count&quot;: 2, 
+   &quot;metadata&quot;: { 
+    &quot;collapsed&quot;: true 
+   }, 
+   &quot;outputs&quot;: [], 
+   &quot;source&quot;: [ 
+    &quot;from __future__ import print_function\n&quot;, 
+    &quot;import numpy as np\n&quot;, 
+    &quot;from scipy import stats\n&quot;, 
+    &quot;import statsmodels.api as sm\n&quot;, 
+    &quot;from statsmodels.base.model import GenericLikelihoodModel&quot; 
+   ] 
+  }, 
+  { 
+   &quot;cell_type&quot;: &quot;markdown&quot;, 
+   &quot;metadata&quot;: {}, 
+   &quot;source&quot;: [ 
+    &quot;The data listed in Appendix Table F21.1 were taken from a study by Spector and Mazzeo\n&quot;, 
+    &quot;(1980), which examined whether a new method of teaching economics, the Personalized\n&quot;, 
+    &quot;System of Instruction (PSI), significantly influenced performance in later economics courses.\n&quot;, 
+    &quot;The \&quot;dependent variable\&quot; used in our application is GRADE, which indicates the whether\n&quot;, 
+    &quot;a student's grade in an intermediate macroeconomics course was higher than that in the\n&quot;, 
+    &quot;principles course. The other variables are GPA, their grade point average; TUCE, the score\n&quot;, 
+    &quot;on a pretest that indicates entering knowledge of the material; and PSI, the binary variable\n&quot;, 
+    &quot;indicator of whether the student was exposed to the new teaching method. (Spector and\n&quot;, 
+    &quot;Mazzeo's specific equation was somewhat different from the one estimated here.)&quot; 
+   ] 
+  }, 
+  { 
+   &quot;cell_type&quot;: &quot;markdown&quot;, 
+   &quot;metadata&quot;: {}, 
+   &quot;source&quot;: [ 
+    &quot;### DATASET DESCRIPTION&quot; 
+   ] 
+  }, 
+  { 
+   &quot;cell_type&quot;: &quot;code&quot;, 
+   &quot;execution_count&quot;: 3, 
+   &quot;metadata&quot;: { 
+    &quot;collapsed&quot;: false 
+   }, 
+   &quot;outputs&quot;: [], 
+   &quot;source&quot;: [ 
+    &quot;data = sm.datasets.spector.load_pandas()&quot; 
+   ] 
+  }, 
+  { 
+   &quot;cell_type&quot;: &quot;code&quot;, 
+   &quot;execution_count&quot;: 4, 
+   &quot;metadata&quot;: { 
+    &quot;collapsed&quot;: false 
+   }, 
+   &quot;outputs&quot;: [ 
+    { 
+     &quot;name&quot;: &quot;stdout&quot;, 
+     &quot;output_type&quot;: &quot;stream&quot;, 
+     &quot;text&quot;: [ 
+      &quot;::\n&quot;, 
+      &quot;\n&quot;, 
+      &quot;    Number of Observations - 32\n&quot;, 
+      &quot;\n&quot;, 
+      &quot;    Number of Variables - 4\n&quot;, 
+      &quot;\n&quot;, 
+      &quot;    Variable name definitions::\n&quot;, 
+      &quot;\n&quot;, 
+      &quot;        Grade - binary variable indicating whether or not a student's grade\n&quot;, 
+      &quot;                improved.  1 indicates an improvement.\n&quot;, 
+      &quot;        TUCE  - Test score on economics test\n&quot;, 
+      &quot;        PSI   - participation in program\n&quot;, 
+      &quot;        GPA   - Student's grade point average\n&quot;, 
+      &quot;\n&quot; 
+     ] 
+    } 
+   ], 
+   &quot;source&quot;: [ 
+    &quot;print(sm.datasets.spector.NOTE)&quot; 
+   ] 
+  }, 
+  { 
+   &quot;cell_type&quot;: &quot;markdown&quot;, 
+   &quot;metadata&quot;: {}, 
+   &quot;source&quot;: [ 
+    &quot;#### INDEPENDENT VARIABLES\n&quot;, 
+    &quot;In Our Case Independent Variables would be :\n&quot;, 
+    &quot;- Number of adopter neighbors \n&quot;, 
+    &quot;- Time ?? Since the neighbor because adopted ?\n&quot;, 
+    &quot;\n&quot;, 
+    &quot;I believe currenly our function is a long product , we need to apply log , simplify it and then we can use it here.\n&quot; 
+   ] 
+  }, 
+  { 
+   &quot;cell_type&quot;: &quot;code&quot;, 
+   &quot;execution_count&quot;: 5, 
+   &quot;metadata&quot;: { 
+    &quot;collapsed&quot;: false 
+   }, 
+   &quot;outputs&quot;: [ 
+    { 
+     &quot;name&quot;: &quot;stdout&quot;, 
+     &quot;output_type&quot;: &quot;stream&quot;, 
+     &quot;text&quot;: [ 
+      &quot;    GPA  TUCE  PSI\n&quot;, 
+      &quot;0  2.66  20.0  0.0\n&quot;, 
+      &quot;1  2.89  22.0  0.0\n&quot;, 
+      &quot;2  3.28  24.0  0.0\n&quot;, 
+      &quot;3  2.92  12.0  0.0\n&quot;, 
+      &quot;4  4.00  21.0  0.0\n&quot; 
+     ] 
+    } 
+   ], 
+   &quot;source&quot;: [ 
+    &quot;exog = data.exog\n&quot;, 
+    &quot;print(data.exog.head())&quot; 
+   ] 
+  }, 
+  { 
+   &quot;cell_type&quot;: &quot;markdown&quot;, 
+   &quot;metadata&quot;: {}, 
+   &quot;source&quot;: [ 
+    &quot;#### DEPENDENT VARIABLES OR REGRESSORS\n&quot;, 
+    &quot;\n&quot;, 
+    &quot;Here its the binary outcome variable GRADES( which is 0 or 1) indicating improvement or no improvement in grades\n&quot;, 
+    &quot;In Our case it should be adopted or non adopted&quot; 
+   ] 
+  }, 
+  { 
+   &quot;cell_type&quot;: &quot;code&quot;, 
+   &quot;execution_count&quot;: 6, 
+   &quot;metadata&quot;: { 
+    &quot;collapsed&quot;: false 
+   }, 
+   &quot;outputs&quot;: [ 
+    { 
+     &quot;name&quot;: &quot;stdout&quot;, 
+     &quot;output_type&quot;: &quot;stream&quot;, 
+     &quot;text&quot;: [ 
+      &quot;0    0.0\n&quot;, 
+      &quot;1    0.0\n&quot;, 
+      &quot;2    0.0\n&quot;, 
+      &quot;3    0.0\n&quot;, 
+      &quot;4    1.0\n&quot;, 
+      &quot;Name: GRADE, dtype: float64\n&quot; 
+     ] 
+    } 
+   ], 
+   &quot;source&quot;: [ 
+    &quot;endog = data.endog\n&quot;, 
+    &quot;print(data.endog.head())&quot; 
+   ] 
+  }, 
+  { 
+   &quot;cell_type&quot;: &quot;markdown&quot;, 
+   &quot;metadata&quot;: {}, 
+   &quot;source&quot;: [ 
+    &quot;STEP 1: Add a constant&quot; 
+   ] 
+  }, 
+  { 
+   &quot;cell_type&quot;: &quot;code&quot;, 
+   &quot;execution_count&quot;: 7, 
+   &quot;metadata&quot;: { 
+    &quot;collapsed&quot;: false 
+   }, 
+   &quot;outputs&quot;: [ 
+    { 
+     &quot;name&quot;: &quot;stdout&quot;, 
+     &quot;output_type&quot;: &quot;stream&quot;, 
+     &quot;text&quot;: [ 
+      &quot;   const   GPA  TUCE  PSI\n&quot;, 
+      &quot;0      1  2.66  20.0  0.0\n&quot;, 
+      &quot;1      1  2.89  22.0  0.0\n&quot;, 
+      &quot;2      1  3.28  24.0  0.0\n&quot;, 
+      &quot;3      1  2.92  12.0  0.0\n&quot;, 
+      &quot;4      1  4.00  21.0  0.0\n&quot; 
+     ] 
+    } 
+   ], 
+   &quot;source&quot;: [ 
+    &quot;exog = sm.add_constant(exog, prepend=True)\n&quot;, 
+    &quot;print(exog[:5])&quot; 
+   ] 
+  }, 
+  { 
+   &quot;cell_type&quot;: &quot;markdown&quot;, 
+   &quot;metadata&quot;: {}, 
+   &quot;source&quot;: [ 
+    &quot;STEP 2: Define the Likelihood Function\n&quot; 
+   ] 
+  }, 
+  { 
+   &quot;cell_type&quot;: &quot;code&quot;, 
+   &quot;execution_count&quot;: 8, 
+   &quot;metadata&quot;: { 
+    &quot;collapsed&quot;: true 
+   }, 
+   &quot;outputs&quot;: [], 
+   &quot;source&quot;: [ 
+    &quot;class MyProbit(GenericLikelihoodModel):\n&quot;, 
+    &quot;    def loglike(self, params):\n&quot;, 
+    &quot;        exog = self.exog\n&quot;, 
+    &quot;        endog = self.endog\n&quot;, 
+    &quot;        q = 2 * endog - 1\n&quot;, 
+    &quot;        return stats.norm.logcdf(q*np.dot(exog, params)).sum()\n&quot; 
+   ] 
+  }, 
+  { 
+   &quot;cell_type&quot;: &quot;markdown&quot;, 
+   &quot;metadata&quot;: {}, 
+   &quot;source&quot;: [ 
+    &quot;STEP 3 : Fit the data to the likelihood&quot; 
+   ] 
+  }, 
+  { 
+   &quot;cell_type&quot;: &quot;code&quot;, 
+   &quot;execution_count&quot;: 9, 
+   &quot;metadata&quot;: { 
+    &quot;collapsed&quot;: false 
+   }, 
+   &quot;outputs&quot;: [ 
+    { 
+     &quot;name&quot;: &quot;stdout&quot;, 
+     &quot;output_type&quot;: &quot;stream&quot;, 
+     &quot;text&quot;: [ 
+      &quot;Optimization terminated successfully.\n&quot;, 
+      &quot;         Current function value: 0.400588\n&quot;, 
+      &quot;         Iterations: 292\n&quot;, 
+      &quot;         Function evaluations: 494\n&quot; 
+     ] 
+    } 
+   ], 
+   &quot;source&quot;: [ 
+    &quot;sm_probit_manual = MyProbit(endog, exog).fit()&quot; 
+   ] 
+  }, 
+  { 
+   &quot;cell_type&quot;: &quot;markdown&quot;, 
+   &quot;metadata&quot;: {}, 
+   &quot;source&quot;: [ 
+    &quot;STEP 4: Results&quot; 
+   ] 
+  }, 
+  { 
+   &quot;cell_type&quot;: &quot;code&quot;, 
+   &quot;execution_count&quot;: 10, 
+   &quot;metadata&quot;: { 
+    &quot;collapsed&quot;: false 
+   }, 
+   &quot;outputs&quot;: [ 
+    { 
+     &quot;name&quot;: &quot;stdout&quot;, 
+     &quot;output_type&quot;: &quot;stream&quot;, 
+     &quot;text&quot;: [ 
+      &quot;                               MyProbit Results                               \n&quot;, 
+      &quot;==============================================================================\n&quot;, 
+      &quot;Dep. Variable:                  GRADE   Log-Likelihood:                -12.819\n&quot;, 
+      &quot;Model:                       MyProbit   AIC:                             33.64\n&quot;, 
+      &quot;Method:            Maximum Likelihood   BIC:                             39.50\n&quot;, 
+      &quot;Date:                Fri, 02 Dec 2016                                         \n&quot;, 
+      &quot;Time:                        12:25:26                                         \n&quot;, 
+      &quot;No. Observations:                  32                                         \n&quot;, 
+      &quot;Df Residuals:                      28                                         \n&quot;, 
+      &quot;Df Model:                           3                                         \n&quot;, 
+      &quot;==============================================================================\n&quot;, 
+      &quot;                 coef    std err          z      P&gt;|z|      [95.0% Conf. Int.]\n&quot;, 
+      &quot;------------------------------------------------------------------------------\n&quot;, 
+      &quot;const         -7.4523      2.542     -2.931      0.003       -12.435    -2.469\n&quot;, 
+      &quot;GPA            1.6258      0.694      2.343      0.019         0.266     2.986\n&quot;, 
+      &quot;TUCE           0.0517      0.084      0.617      0.537        -0.113     0.216\n&quot;, 
+      &quot;PSI            1.4263      0.595      2.397      0.017         0.260     2.593\n&quot;, 
+      &quot;==============================================================================\n&quot; 
+     ] 
+    } 
+   ], 
+   &quot;source&quot;: [ 
+    &quot;print(sm_probit_manual.summary())&quot; 
+   ] 
+  }, 
+  { 
+   &quot;cell_type&quot;: &quot;code&quot;, 
+   &quot;execution_count&quot;: null, 
+   &quot;metadata&quot;: { 
+    &quot;collapsed&quot;: true 
+   }, 
+   &quot;outputs&quot;: [], 
+   &quot;source&quot;: [] 
+  } 
+ ], 
+ &quot;metadata&quot;: { 
+  &quot;kernelspec&quot;: { 
+   &quot;display_name&quot;: &quot;Python 2&quot;, 
+   &quot;language&quot;: &quot;python&quot;, 
+   &quot;name&quot;: &quot;python2&quot; 
+  }, 
+  &quot;language_info&quot;: { 
+   &quot;codemirror_mode&quot;: { 
+    &quot;name&quot;: &quot;ipython&quot;, 
+    &quot;version&quot;: 2 
+   }, 
+   &quot;file_extension&quot;: &quot;.py&quot;, 
+   &quot;mimetype&quot;: &quot;text/x-python&quot;, 
+   &quot;name&quot;: &quot;python&quot;, 
+   &quot;nbconvert_exporter&quot;: &quot;python&quot;, 
+   &quot;pygments_lexer&quot;: &quot;ipython2&quot;, 
+   &quot;version&quot;: &quot;2.7.10&quot; 
+  } 
+ }, 
+ &quot;nbformat&quot;: 4, 
+ &quot;nbformat_minor&quot;: 0 
+} 
+</span></pre>
+</body>
+</html>
